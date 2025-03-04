@@ -4,6 +4,7 @@ namespace rias\scout\models;
 
 use Craft;
 use craft\base\Model;
+use craft\helpers\App;
 use Exception;
 use Illuminate\Support\Collection;
 use rias\scout\engines\AlgoliaEngine;
@@ -13,53 +14,49 @@ use rias\scout\ScoutIndex;
 class Settings extends Model
 {
     /** @var string */
-    public $pluginName = 'Scout';
+    public string $pluginName = 'Scout';
 
     /** @var bool */
-    public $sync = true;
+    public bool $sync = true;
 
     /** @var bool */
-    public $indexRelations = true;
+    public bool $indexRelations = true;
 
-    /**
-     * @var bool
-     *
-     * @deprecated 4.0.0 Disabling the `queue` option will no longer be supported in the next version of Scout
-     */
-    public $queue = true;
+    /** @var bool */
+    public bool $queue = true;
 
     /** @var int */
-    public $ttr = 300;
+    public int $ttr = 300;
 
     /** @var int */
-    public $priority = 1024;
+    public int $priority = 1024;
 
     /** @var string */
     public $engine = AlgoliaEngine::class;
 
     /** @var ScoutIndex[] */
-    public $indices = [];
+    public array $indices = [];
 
     /* @var string */
-    public $application_id = '';
+    public string $application_id = '';
 
     /* @var string */
-    public $admin_api_key = '';
+    public string $admin_api_key = '';
 
     /* @var string */
-    public $search_api_key = '';
+    public string $search_api_key = '';
 
     /* @var int */
-    public $connect_timeout = 1;
+    public int $connect_timeout = 1;
 
     /* @var int */
-    public $batch_size = 1000;
+    public int $batch_size = 1000;
 
     /** @var bool */
-    public $useOriginalRecordIfSplitValueIsArrayOfOne = true;
+    public bool $useOriginalRecordIfSplitValueIsArrayOfOne = true;
 
     /** @var string[] An array of ::class strings */
-    public $relatedElementTypes = [];
+    public array $relatedElementTypes = [];
 
     public function fields(): array
     {
@@ -123,16 +120,16 @@ class Settings extends Model
 
     public function getApplicationId(): string
     {
-        return Craft::parseEnv($this->application_id);
+        return App::parseEnv($this->application_id);
     }
 
     public function getAdminApiKey(): string
     {
-        return Craft::parseEnv($this->admin_api_key);
+        return App::parseEnv($this->admin_api_key);
     }
 
     public function getSearchApiKey(): string
     {
-        return Craft::parseEnv($this->search_api_key);
+        return App::parseEnv($this->search_api_key);
     }
 }

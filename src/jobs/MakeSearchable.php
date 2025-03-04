@@ -3,6 +3,7 @@
 namespace rias\scout\jobs;
 
 use craft\base\Element;
+use craft\elements\db\ElementQuery;
 use craft\queue\BaseJob;
 use rias\scout\Scout;
 use rias\scout\ScoutIndex;
@@ -35,8 +36,16 @@ class MakeSearchable extends BaseJob
             // Element not found, checking if it was disabled and needs to be de-indexed.
             $element = $this->getAnyElement();
             if ($element) {
-                if (!$element->shouldBeSearchable()) {
-                    $element->unsearchable();
+                if (is_array($element)) {
+                    collect($element)->each(function($element) {
+                        if (!$element->shouldBeSearchable()) {
+                            $element->unsearchable();
+                        }
+                    });
+                } else {
+                    if (!$element->shouldBeSearchable()) {
+                        $element->unsearchable();
+                    }
                 }
             }
         }
@@ -46,6 +55,10 @@ class MakeSearchable extends BaseJob
     {
         if (!$element = $this->getAnyElement()) {
             return '';
+        }
+
+        if (is_array($element)) {
+            $element = end($element);
         }
 
         return sprintf(
@@ -64,6 +77,14 @@ class MakeSearchable extends BaseJob
      */
     private function getElement()
     {
+        if (is_array($this->getIndex()->criteria)) {
+            /** @phpstan-ignore-next-line */
+            $element = collect($this->getIndex()->criteria)->first(function(ElementQuery $criteria) {
+                return $criteria->id($this->id)->siteId($this->siteId)->exists();
+            });
+            return $element->one();
+        }
+
         return $this->getIndex()
             ->criteria
             ->id($this->id)
@@ -73,6 +94,14 @@ class MakeSearchable extends BaseJob
 
     private function getAnyElement()
     {
+        if (is_array($this->getIndex()->criteria)) {
+            /** @phpstan-ignore-next-line */
+            $element = collect($this->getIndex()->criteria)->first(function(ElementQuery $criteria) {
+                return $criteria->id($this->id)->siteId($this->siteId)->status(null)->exists();
+            });
+            return $element->one();
+        }
+        
         return $this->getIndex()
             ->criteria
             ->id($this->id)
